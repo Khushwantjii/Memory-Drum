@@ -8,85 +8,135 @@
 <style>
   :root{
     --bg:#F6F8FC; --surface:#FFFFFF; --fg:#17213B; --muted:#5E6B86;
-    --line:#E4E9F2; --accent:#1E2761; --accent-soft:#EAF0FB; --accent-text:#FFFFFF;
+    --line:#E1E7F0; --accent:#1E2761; --accent-soft:#EAF0FB; --accent-text:#FFFFFF;
     --heading:#1E2761; --good:#2E7D46; --good-soft:#E6F2EA; --amber:#B9791F; --amber-soft:#F9EFDC;
+    --bad:#B4432F; --bad-soft:#F8E7E3;
     --shadow:0 1px 2px rgba(23,33,59,.06),0 8px 24px rgba(23,33,59,.07);
     --fsans:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
     --fserif:"Spectral",Georgia,serif;
-    --fmono:"IBM Plex Mono",ui-monospace,monospace;
+    --fmono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
   }
   @media (prefers-color-scheme:dark){:root{
     --bg:#0F1424; --surface:#161D31; --fg:#E9EDF7; --muted:#9BA6C1;
-    --line:#28314C; --accent:#4B6AB2; --accent-soft:#1B2640; --accent-text:#FFFFFF;
+    --line:#28314C; --accent:#5B79C2; --accent-soft:#1B2640; --accent-text:#FFFFFF;
     --heading:#C8D4F2; --good:#6FC487; --good-soft:#15291D; --amber:#E0A64C; --amber-soft:#2A2213;
+    --bad:#E27A65; --bad-soft:#2D1915;
     --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
     color-scheme:dark;
   }}
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
-  body{background:var(--bg);color:var(--fg);font-family:var(--fsans);line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
-  .app{max-width:34rem;margin:0 auto;
+  body{background:var(--bg);color:var(--fg);font-family:var(--fsans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+  .app{max-width:36rem;margin:0 auto;
     padding-left:max(16px,env(safe-area-inset-left,0px));
     padding-right:max(16px,env(safe-area-inset-right,0px));
-    padding-top:max(26px,env(safe-area-inset-top,0px));
-    padding-bottom:max(36px,env(safe-area-inset-bottom,0px))}
-  h1,h2{font-family:var(--fserif);color:var(--heading);margin:0;font-weight:600}
+    padding-top:max(22px,env(safe-area-inset-top,0px));
+    padding-bottom:max(40px,env(safe-area-inset-bottom,0px))}
+  h1,h2,h3{font-family:var(--fserif);color:var(--heading);margin:0;font-weight:600;text-wrap:balance}
   p{margin:0}
-  .kicker{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 .5rem}
+  .kicker{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 .45rem}
   .muted{color:var(--muted)}
+  .small{font-size:.86rem}
   .stack{display:flex;flex-direction:column;gap:18px}
   .stack-sm{display:flex;flex-direction:column;gap:10px}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:20px}
   label.field{display:flex;flex-direction:column;gap:6px;font-size:.85rem;font-weight:500;color:var(--muted)}
-  input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;width:100%}
-  input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  input[type=text],select{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 13px;width:100%}
+  input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   button{font:inherit;cursor:pointer;border:none;border-radius:11px}
-  .btn{background:var(--accent);color:var(--accent-text);padding:14px 18px;font-weight:600;font-size:1rem;width:100%;transition:filter .15s}
-  .btn:hover{filter:brightness(1.08)}
+  .btn{background:var(--accent);color:var(--accent-text);padding:14px 18px;font-weight:600;font-size:1rem;width:100%}
   .btn:disabled{opacity:.45;cursor:default}
   .btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--line);padding:12px 16px;font-weight:600;width:100%}
   .btn:focus-visible,.btn-ghost:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .row{display:flex;gap:10px}
+  .row>*{flex:1}
   .tag{display:inline-block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
   ol.steps{margin:0;padding-left:1.2rem;display:flex;flex-direction:column;gap:9px}
-  .rule{display:flex;gap:10px;align-items:flex-start}
-  .rule .dot{flex:none;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:.55rem}
+  details.settings summary{cursor:pointer;font-weight:600;color:var(--accent);font-size:.92rem}
+  details.settings[open] summary{margin-bottom:12px}
 
-  /* drum window + stimulus */
-  #screen-stimulus{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;text-align:center}
-  .drum{width:min(78vw,18rem);height:min(40vw,9rem);border:2px solid var(--line);border-radius:18px;background:var(--surface);
-    box-shadow:var(--shadow),inset 0 0 0 6px var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden}
-  .syll{font-family:var(--fmono);font-weight:600;font-size:clamp(3rem,16vw,5rem);letter-spacing:.08em;color:var(--fg)}
-  .ready{font-family:var(--fserif);font-size:1.3rem;color:var(--muted)}
+  /* drum */
+  .drum{width:min(84vw,19rem);height:min(36vw,8.5rem);margin:0 auto;border:2px solid var(--line);border-radius:18px;background:var(--surface);
+    box-shadow:var(--shadow),inset 0 0 0 6px var(--bg);display:flex;align-items:center;justify-content:center}
+  .syll{font-family:var(--fmono);font-weight:600;font-size:clamp(2.6rem,14vw,4.4rem);letter-spacing:.08em}
 
-  /* recall */
-  .addrow{display:flex;gap:8px}
-  .addrow input{text-transform:uppercase;letter-spacing:.18em;font-family:var(--fmono);text-align:center}
-  .addrow button{flex:none;width:26%}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:2.2rem}
-  .chip{font-family:var(--fmono);font-weight:600;letter-spacing:.12em;background:var(--accent-soft);color:var(--accent);
-    border:1px solid var(--line);border-radius:999px;padding:7px 12px 7px 14px;display:flex;align-items:center;gap:8px}
-  .chip button{background:none;color:var(--muted);font-size:1.1rem;line-height:1;padding:0;width:auto}
-  .emptyhint{color:var(--muted);font-size:.9rem}
+  /* serial-recall presentation */
+  #screen-stimulus{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center}
+  .drum-meta{font-size:.85rem;color:var(--muted)}
 
-  /* results */
-  .score{background:var(--accent-soft);border-radius:14px;padding:16px;text-align:center}
-  .score .n{font-family:var(--fserif);font-size:2.6rem;font-weight:600;color:var(--heading);line-height:1}
-  .score .l{font-size:.82rem;color:var(--muted);margin-top:4px}
-  .posrow{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-  .pos{aspect-ratio:1/1;min-height:2.4rem;border-radius:8px;border:1px solid var(--line);
-    display:flex;align-items:center;justify-content:center;font-family:var(--fmono);font-size:.9rem;color:var(--muted);background:var(--surface)}
-  .pos.hit{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
-  .legend{display:flex;gap:16px;font-size:.78rem;color:var(--muted);flex-wrap:wrap}
-  .legend span{display:inline-flex;align-items:center;gap:6px}
-  .sw{width:12px;height:12px;border-radius:3px;border:1px solid var(--line)}
-  .list{display:flex;flex-wrap:wrap;gap:8px}
-  .item{font-family:var(--fmono);font-weight:600;letter-spacing:.1em;border-radius:8px;padding:6px 10px;font-size:.9rem}
-  .item.hit{background:var(--good-soft);color:var(--good)}
-  .item.miss{background:var(--bg);color:var(--muted);border:1px dashed var(--line)}
-  .notebox{background:var(--good-soft);border-radius:12px;padding:14px 16px;font-size:.92rem}
-  .foot{font-size:.72rem;color:var(--muted);text-align:center;margin-top:4px}
+  /* anticipation (game) */
+  #screen-anticip{display:flex;flex-direction:column;gap:12px}
+  .ahead{display:flex;justify-content:space-between;align-items:center}
+  .ascore{font-family:var(--fmono);font-weight:600;font-size:1rem;color:var(--heading)}
+  .afb{min-height:1.6rem;text-align:center;font-size:.95rem;font-weight:500}
+  .afb .ok{color:var(--good)} .afb .no{color:var(--bad)} .afb code{font-family:var(--fmono);font-weight:600;letter-spacing:.06em}
+  #a-in{text-transform:uppercase;letter-spacing:.3em;text-align:center;font-family:var(--fmono);font-weight:600;font-size:1.4rem;padding:12px}
+  .dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+  .dots i{width:14px;height:14px;border-radius:50%;background:var(--line)}
+  .dots i.ok{background:var(--good)} .dots i.no{background:var(--bad)} .dots i.now{outline:2px solid var(--accent);outline-offset:2px}
+  .ahint{font-size:.8rem;color:var(--muted);text-align:center}
+  .drum.flash-ok{border-color:var(--good)} .drum.flash-no{border-color:var(--bad)}
+
+  /* recall slots */
+  .slots{display:flex;flex-direction:column;gap:8px}
+  .slot{display:grid;grid-template-columns:2.2rem 1fr;align-items:center;gap:10px}
+  .slot span{font-family:var(--fmono);font-size:.9rem;color:var(--muted);text-align:right}
+  .slot input{text-transform:uppercase;letter-spacing:.2em;font-family:var(--fmono);font-weight:600}
+
+  /* interim */
+  .bigstat{font-family:var(--fserif);font-size:3rem;color:var(--heading);line-height:1}
+  .trail{display:flex;gap:6px;flex-wrap:wrap}
+  .trail span{font-family:var(--fmono);font-size:.82rem;background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:3px 8px}
+  .trail span.best{background:var(--good-soft);color:var(--good)}
+
+  /* report */
+  .report{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:22px;display:flex;flex-direction:column;gap:22px}
+  .rhead{border-bottom:2px solid var(--accent);padding-bottom:14px;display:flex;flex-direction:column;gap:4px}
+  .rhead h2{font-size:1.45rem}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;font-size:.88rem;margin:6px 0 0}
+  .meta dt{color:var(--muted)} .meta dd{margin:0;font-weight:500;min-width:0;overflow-wrap:anywhere}
+  .rsec{display:flex;flex-direction:column;gap:10px}
+  .rsec h3{font-size:1.08rem;display:flex;gap:8px;align-items:baseline}
+  .rsec h3 .n{font-family:var(--fmono);font-size:.8rem;color:var(--muted);font-weight:500}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .tile{background:var(--accent-soft);border-radius:12px;padding:12px 14px}
+  .tile .v{font-family:var(--fserif);font-size:1.6rem;color:var(--heading);line-height:1.1;font-variant-numeric:tabular-nums}
+  .tile .k{font-size:.78rem;color:var(--muted)}
+  .tile.hl{background:var(--good-soft)} .tile.hl .v{color:var(--good)}
+  .chart{width:100%;height:auto;display:block}
+  .chart .ax{stroke:var(--line);stroke-width:1}
+  .chart .gd{stroke:var(--line);stroke-width:1;stroke-dasharray:3 3}
+  .chart .ln{stroke:var(--accent);stroke-width:2.5;fill:none}
+  .chart .pt{fill:var(--accent)}
+  .chart .br{fill:var(--accent)}
+  .chart .brh{fill:var(--bad)}
+  .chart text{fill:var(--muted);font-family:var(--fsans);font-size:10px}
+  .chart .vl{fill:var(--fg);font-size:10px;font-weight:600}
+  .cap{font-size:.84rem;color:var(--muted)}
+  .tbl-wrap{overflow-x:auto}
+  table.tbl{width:100%;border-collapse:collapse;font-size:.86rem;font-variant-numeric:tabular-nums}
+  table.tbl th{text-align:left;font-weight:600;color:var(--muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;padding:6px 6px;border-bottom:1px solid var(--line)}
+  table.tbl td{padding:7px 6px;border-bottom:1px solid var(--line)}
+  table.tbl tr.crit td{background:var(--good-soft);font-weight:600}
+  .listing{display:grid;grid-template-columns:repeat(auto-fill,minmax(6.4rem,1fr));gap:6px}
+  .listing div{font-family:var(--fmono);font-weight:600;letter-spacing:.06em;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:.88rem;display:flex;justify-content:space-between;gap:6px}
+  .listing i{font-style:normal;color:var(--muted);font-weight:500;font-size:.74rem;letter-spacing:0}
+  .interp p{font-size:.93rem}
+  .interp p+p{margin-top:8px}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--accent);color:var(--accent-text);padding:10px 18px;border-radius:999px;font-size:.88rem;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.show{opacity:1}
   [hidden]{display:none!important}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  @media print{
+    :root{--bg:#fff;--surface:#fff;--fg:#000;--muted:#444;--line:#bbb;--accent:#1E2761;--accent-soft:#eef1f7;--heading:#1E2761;--good:#2E7D46;--good-soft:#e9f3ec;--amber-soft:#faf1df;--bad:#B4432F;color-scheme:light}
+    body{background:#fff}
+    .noprint,.toast{display:none!important}
+    .app{max-width:none;padding:0}
+    .report{box-shadow:none;border:none;padding:0}
+    .rsec,.tiles,table{break-inside:avoid}
+  }
 </style>
 </head>
 <body>
@@ -95,84 +145,113 @@
   <!-- WELCOME -->
   <section id="screen-welcome" class="stack">
     <div>
-      <p class="kicker">PSY8103P · Measurement of STM</p>
+      <p class="kicker">PSY8103P · Learning &amp; Memory</p>
       <h1 style="font-size:1.9rem">The Memory Drum</h1>
+      <p class="muted" style="margin-top:6px">Learn a list of nonsense syllables the way Ebbinghaus's successors did on the Müller–Schumann memory drum: by predicting which syllable comes next.</p>
     </div>
-    <p class="muted">A quick memory experiment. You'll see a run of <strong>nonsense syllables</strong> one at a time, then recall as many as you can. About 3 minutes. Find a quiet moment and don't write anything down.</p>
+
+    <div class="card stack-sm" id="relearn-card" hidden>
+      <span class="tag" style="align-self:flex-start">Savings test available</span>
+      <p id="relearn-text" class="small"></p>
+      <button class="btn" id="go-relearn">Relearn that list now</button>
+    </div>
+
     <div class="card stack-sm">
-      <label class="field">Your name <span style="font-weight:400">(optional)</span>
-        <input id="in-name" type="text" autocomplete="name" autocorrect="off" spellcheck="false" placeholder="For your own record">
+      <label class="field">Name
+        <input id="in-name" type="text" autocomplete="name" autocorrect="off" spellcheck="false" placeholder="Full name">
       </label>
+      <label class="field">Class / Roll no.
+        <input id="in-roll" type="text" autocorrect="off" spellcheck="false" placeholder="e.g. MA Sem 1 · 23">
+      </label>
+      <details class="settings">
+        <summary>Experimenter settings</summary>
+        <div class="stack-sm">
+          <label class="field">Method
+            <select id="set-method">
+              <option value="anticipation" selected>Anticipation (classic memory drum)</option>
+              <option value="serial">Serial recall (study–test)</option>
+            </select>
+          </label>
+          <div class="grid2">
+            <label class="field">List length
+              <select id="set-len"><option value="8" selected>8</option><option value="10">10</option><option value="12">12</option></select>
+            </label>
+            <label class="field">Drum rate
+              <select id="set-rate"><option value="2000">2 s</option><option value="3000">3 s</option><option value="4000" selected>4 s</option><option value="5000">5 s</option></select>
+            </label>
+          </div>
+          <label class="field">Maximum trials
+            <select id="set-max"><option value="10">10</option><option value="15" selected>15</option><option value="20">20</option></select>
+          </label>
+          <p class="muted small">Criterion: one errorless trial. Typical settings: anticipation 4 s per syllable, 15 trials; serial recall 2 s, 10 trials.</p>
+        </div>
+      </details>
     </div>
-    <button class="btn" id="go-instructions">Begin</button>
+    <p class="muted small" id="browser-note">Open this link in <strong>Safari</strong> or <strong>Chrome</strong>, not inside WhatsApp or Instagram, so your result and the later savings test are saved on this phone.</p>
+    <button class="btn" id="go-instructions">Begin original learning</button>
   </section>
 
   <!-- INSTRUCTIONS -->
   <section id="screen-instructions" class="stack" hidden>
-    <div><p class="kicker">How it works</p><h2 style="font-size:1.4rem">Read this first</h2></div>
-    <div class="card">
-      <ol class="steps">
-        <li>A window will show <strong>12 nonsense syllables</strong> — ZOF, BAP, KEL… — one at a time.</li>
-        <li>Just <strong>watch and try to remember</strong> them. Don't type or write anything yet.</li>
-        <li>When they stop, type back every syllable you can recall, in <strong>any order</strong>.</li>
-      </ol>
-    </div>
-    <div class="card stack-sm">
-      <div class="rule"><span class="dot"></span><span>They're meaningless on purpose — that's how Ebbinghaus measured pure memory. It's meant to feel hard.</span></div>
-      <div class="rule"><span class="dot"></span><span>You can't replay the run, so watch every syllable.</span></div>
-    </div>
-    <button class="btn" id="go-run">Start the run</button>
+    <div><p class="kicker">Instructions to the subject</p><h2 style="font-size:1.4rem" id="ins-title">Original learning</h2></div>
+    <div class="card"><ol class="steps" id="ins-steps"></ol></div>
+    <div class="card small muted">Work from memory only: no writing, no screenshots, no recording. Keep your eyes on the drum window, and stay on this page until the experiment ends. Leaving the page during a trial is recorded in your report.</div>
+    <button class="btn" id="go-trial">Start trial 1</button>
   </section>
 
-  <!-- STIMULUS -->
+  <!-- ANTICIPATION (game) -->
+  <section id="screen-anticip" hidden>
+    <div class="ahead"><span class="tag" id="a-tag">Trial 1</span><span class="ascore" id="a-score">0 / 8</span></div>
+    <div class="drum" id="a-drum"><div class="syll" id="a-syll" aria-hidden="true"></div></div>
+    <div class="afb" id="a-fb" aria-live="polite"></div>
+    <input id="a-in" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="8" placeholder="next?" aria-label="The syllable you expect next">
+    <div class="dots" id="a-dots"></div>
+    <p class="ahint" id="a-hint">Type the syllable you expect to appear <strong>next</strong>. It is scored the moment the drum turns.</p>
+  </section>
+
+  <!-- SERIAL: STIMULUS -->
   <section id="screen-stimulus" hidden>
-    <p class="tag">The drum is turning — watch</p>
+    <span class="tag" id="stim-tag">Trial 1 · watch</span>
     <div class="drum"><div class="syll" id="syll" aria-hidden="true"></div></div>
-    <p class="ready" id="ready" hidden>Ready…</p>
+    <p class="drum-meta" id="stim-meta"></p>
   </section>
 
-  <!-- RECALL -->
+  <!-- SERIAL: RECALL -->
   <section id="screen-recall" class="stack" hidden>
-    <div><p class="kicker">Now recall</p><h2 style="font-size:1.35rem">Type every syllable you remember</h2></div>
-    <div class="card stack-sm">
-      <div class="addrow">
-        <input id="in-syll" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="12" placeholder="e.g. ZOF" aria-label="A syllable you remember">
-        <button class="btn" id="add-syll">Add</button>
-      </div>
-      <div class="chips" id="chips"><span class="emptyhint">Added syllables appear here. Any order is fine.</span></div>
-    </div>
-    <button class="btn" id="finish" disabled>I'm done — show my result</button>
-    <button class="btn-ghost" id="none">I can't recall any</button>
+    <div><p class="kicker" id="recall-kicker">Trial 1 · recall</p><h2 style="font-size:1.3rem">Write the syllables in their order</h2>
+      <p class="muted small" style="margin-top:4px">Fill each position you can. Leave a box empty if you don't know it.</p></div>
+    <div class="card"><div class="slots" id="slots"></div></div>
+    <button class="btn" id="submit-trial">Submit this trial</button>
   </section>
 
-  <!-- RESULTS -->
-  <section id="screen-results" class="stack" hidden>
-    <div><p class="kicker">Your result</p><h2 style="font-size:1.5rem">What your memory did</h2></div>
-    <div class="score"><div class="n" id="sc-correct">–</div><div class="l">syllables recalled, out of 12</div></div>
-
+  <!-- INTERIM -->
+  <section id="screen-interim" class="stack" hidden>
+    <div><p class="kicker" id="int-kicker">Trial 1 complete</p><h2 style="font-size:1.3rem" id="int-head">The drum turns again</h2></div>
     <div class="card stack-sm">
-      <p style="font-family:var(--fserif);font-weight:600;color:var(--heading)">Where they fell in the list</p>
-      <div class="posrow" id="posrow"></div>
-      <div class="legend">
-        <span><span class="sw" style="background:var(--accent);border-color:var(--accent)"></span> recalled</span>
-        <span><span class="sw"></span> missed</span>
-        <span>1 = shown first, 12 = shown last</span>
+      <div class="bigstat" id="int-score">–</div>
+      <p class="muted small" id="int-sub">correct</p>
+      <div class="trail" id="int-trail"></div>
+    </div>
+    <p class="muted small" id="int-note">Same list, same order. Your goal is one trial with every syllable correct.</p>
+    <button class="btn" id="go-next">Start next trial</button>
+  </section>
+
+  <!-- REPORT -->
+  <section id="screen-report" class="stack" hidden>
+    <div class="report" id="report"></div>
+    <div class="stack-sm noprint">
+      <div class="row">
+        <button class="btn" id="btn-print">Print / Save PDF</button>
+        <button class="btn-ghost" id="btn-copy">Copy as text</button>
       </div>
+      <p class="muted small" id="savings-hint"></p>
+      <button class="btn-ghost" id="btn-home">Back to start</button>
     </div>
-
-    <div class="notebox" id="sp-note"></div>
-
-    <div class="card stack-sm">
-      <p style="font-family:var(--fserif);font-weight:600;color:var(--heading)">The full list</p>
-      <div class="list" id="full-list"></div>
-      <p class="muted" id="intrusions" style="font-size:.85rem"></p>
-    </div>
-
-    <button class="btn-ghost" id="restart">Run it again</button>
-    <p class="foot">PSY8103P · Measurement of STM · a digital memory drum</p>
   </section>
 
 </div>
+<div class="toast" id="toast"></div>
+<textarea id="copy-buf" readonly style="position:fixed;left:-9999px;top:0" aria-hidden="true" tabindex="-1"></textarea>
 
 <script>
 (function(){
@@ -180,123 +259,378 @@
   var POOL=["ZOF","BAP","KEL","WID","JAT","POJ","MUK","LEB","DAK","NUV","GEB","FAZ","RUK","SIZ","TEV","VUN",
     "WOZ","ZEB","BIV","DOF","KUP","MIB","NAJ","PEB","ROV","SUZ","TIV","VOK","WEV","ZUN","BOK","DIZ","FOV",
     "JIV","KOV","LUP","MEV","NOZ","PUV","REZ"];
-  var N=12, ON=1200, ISI=350, READY=1000;
-  var list=[], entered=[], name="", running=false;
+  var KEY="md_original_v3";
+  var S=null, running=false, inTrial=false, wake=null, cur=null, aTimer=null;
+  var STORAGE_OK=(function(){try{localStorage.setItem("md_t","1");localStorage.removeItem("md_t");return true;}catch(e){return false;}})();
+  var SCREENS=["welcome","instructions","anticip","stimulus","recall","interim","report"];
 
   function $(id){return document.getElementById(id);}
-  function show(name){
-    ["welcome","instructions","stimulus","recall","results"].forEach(function(s){$("screen-"+s).hidden=(s!==name);});
-    window.scrollTo(0,0);
-  }
+  function show(n){SCREENS.forEach(function(s){$("screen-"+s).hidden=(s!==n);});window.scrollTo(0,0);}
   function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
-  function pickList(){return shuffle(POOL.slice()).slice(0,N);}
+  function norm(v){return (v||"").toUpperCase().replace(/[^A-Z]/g,"");}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+  function fmtDate(d){var p=function(n){return(n<10?"0":"")+n;};return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes());}
+  function load(){try{var r=localStorage.getItem(KEY);return r?JSON.parse(r):null;}catch(e){return null;}}
+  function save(o){try{localStorage.setItem(KEY,JSON.stringify(o));}catch(e){}}
+  var tt=null;function toast(m){var t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("show");},1700);}
+  function keepAwake(){try{if("wakeLock" in navigator){navigator.wakeLock.request("screen").then(function(w){wake=w;}).catch(function(){});}}catch(e){}}
+  function releaseWake(){try{if(wake)wake.release();}catch(e){}wake=null;}
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState==="hidden"&&inTrial&&S){ S.leaves=(S.leaves||0)+1; }
+    if(document.visibilityState==="visible"&&running)keepAwake();
+  });
+  window.addEventListener("beforeunload",function(e){ if(S&&!S.end&&(inTrial||S.trials.length>0)){ e.preventDefault(); e.returnValue=""; } });
+  function scriptWarn(v){ if(/[^\x00-\x7F]/.test(v||"")) toast("Switch to the English (ABC) keyboard"); }
+  function methodName(m){return m==="serial"?"Serial recall (study–test)":"Anticipation method";}
 
-  // run
-  function startRun(){
-    if(running) return;   // guard against a double-tap starting two runs at once
-    running=true;
-    list=pickList(); entered=[];
+  // ---------- welcome ----------
+  function initWelcome(){
+    clearTimeout(aTimer); running=false; inTrial=false;
+    try{var n=localStorage.getItem("md_name");if(n)$("in-name").value=n;var r=localStorage.getItem("md_roll");if(r)$("in-roll").value=r;}catch(e){}
+    var o=load();
+    if(o&&o.list){
+      $("relearn-card").hidden=false;
+      $("relearn-text").innerHTML="On <strong>"+esc(o.date)+"</strong> you learned a "+o.list.length+"-syllable list ("+esc(methodName(o.method).toLowerCase())+") "+
+        (o.reached?("to criterion in <strong>"+o.reached+" trial"+(o.reached>1?"s":"")+"</strong>"):("without reaching criterion in "+o.max+" trials"))+
+        ". Relearning it now measures Ebbinghaus's <strong>savings</strong>. Use the same phone and browser.";
+    } else $("relearn-card").hidden=true;
+    show("welcome");
+  }
+  $("set-method").addEventListener("change",function(){
+    if(this.value==="serial"){ $("set-rate").value="2000"; $("set-max").value="10"; }
+    else { $("set-rate").value="4000"; $("set-max").value="15"; }
+  });
+  function captureIds(){
+    var nm=$("in-name").value.trim(), rl=$("in-roll").value.trim();
+    try{localStorage.setItem("md_name",nm);localStorage.setItem("md_roll",rl);}catch(e){}
+    return {name:nm,roll:rl};
+  }
+
+  function newSession(mode){
+    var ids=captureIds(), o=load();
+    if(mode==="relearn"&&o){
+      S={mode:"relearn",method:o.method||"anticipation",list:o.list.slice(),rate:o.rate,max:o.max,original:o,trials:[],reached:null,start:new Date(),name:ids.name,roll:ids.roll};
+    } else {
+      S={mode:"original",method:$("set-method").value,list:shuffle(POOL.slice()).slice(0,parseInt($("set-len").value,10)),
+         rate:parseInt($("set-rate").value,10),max:parseInt($("set-max").value,10),trials:[],reached:null,start:new Date(),name:ids.name,roll:ids.roll};
+    }
+    S.leaves=0;
+    var L=S.list.length, sec=S.rate/1000;
+    $("ins-title").textContent=(S.mode==="relearn"?"Relearning (savings test)":"Original learning")+" · "+methodName(S.method);
+    var steps;
+    if(S.method==="anticipation"){
+      steps="<li>A list of <strong>"+L+" nonsense syllables</strong> will turn past the drum window, one every <strong>"+sec+" seconds</strong>, always in the <strong>same order</strong>.</li>"+
+        "<li>Each trial starts with a ready signal <strong>* * *</strong>.</li>"+
+        "<li>While any item is in the window, <strong>type the syllable you expect to come next</strong>. When the drum turns, you'll see if you were right.</li>"+
+        "<li>On trial 1 you can't know yet, so just read and start learning the order. You'll get better each trial.</li>"+
+        "<li>The experiment ends when you predict <strong>every syllable correctly in one trial</strong>, or after <strong>"+S.max+" trials</strong>.</li>"+
+        "<li>Use the <strong>English (ABC) keyboard</strong>. If the keyboard closes, tap the answer box to bring it back.</li>";
+    } else {
+      steps="<li>The drum shows <strong>* * *</strong>, then <strong>"+L+" nonsense syllables</strong>, one every <strong>"+sec+" seconds</strong>.</li>"+
+        "<li>The list is <strong>the same, in the same order, on every trial</strong>.</li>"+
+        "<li>After each presentation, type the syllables into numbered boxes <strong>in their order</strong>, using the <strong>English (ABC) keyboard</strong>. Leave boxes empty if unsure.</li>"+
+        "<li>Trials continue until you get <strong>every position correct once</strong>, or for <strong>"+S.max+" trials</strong>.</li>";
+    }
+    if(S.mode==="relearn") steps+="<li>This is the list you learned before. How quickly it comes back is your <strong>savings</strong> score.</li>";
+    $("ins-steps").innerHTML=steps;
+    show("instructions");
+  }
+
+  function runTrial(){ if(S.method==="anticipation") runAnticip(); else runSerial(); }
+
+  // ---------- anticipation ----------
+  function runAnticip(){
+    if(running) return; running=true; inTrial=true; keepAwake();
+    var k=S.trials.length+1, N=S.list.length;
+    show("anticip");
+    var inp=$("a-in"); inp.value="";
+    try{ inp.focus(); }catch(e){}   // must happen inside the tap so iOS opens the keyboard
+    setTimeout(function(){ window.scrollTo(0,0); },350);   // keep the drum in view after the keyboard opens
+    cur={answers:[],pos:[]};
+    $("a-tag").textContent="Trial "+k+" / "+S.max+(S.mode==="relearn"?" · relearn":"");
+    $("a-score").textContent="0 / "+N;
+    var dots=""; for(var i=0;i<N;i++) dots+='<i id="dot-'+i+'"></i>'; $("a-dots").innerHTML=dots;
+    $("a-fb").innerHTML= k===1 ? "Trial 1: watch the order. Guess if you like." : "What comes first? Type it now.";
+    aStep(0);
+  }
+  function aStep(i){
+    var N=S.list.length, el=$("a-syll");
+    el.textContent = i===0 ? "* * *" : S.list[i-1];
+    for(var d=0; d<N; d++){ var dt=$("dot-"+d); if(dt) dt.classList.toggle("now", d===i); }
+    aTimer=setTimeout(function(){
+      var g=norm($("a-in").value); $("a-in").value="";
+      var ok=(g===S.list[i]);
+      cur.answers.push(g); cur.pos.push(ok);
+      var dt=$("dot-"+i); if(dt){ dt.classList.remove("now"); dt.classList.add(ok?"ok":"no"); }
+      $("a-score").textContent=cur.pos.filter(Boolean).length+" / "+N;
+      var drum=$("a-drum"); drum.classList.remove("flash-ok","flash-no"); drum.classList.add(ok?"flash-ok":"flash-no");
+      $("a-fb").innerHTML = ok ? '<span class="ok">✓ Correct: <code>'+S.list[i]+'</code></span>'
+        : (g ? '<span class="no">✗ You typed <code>'+esc(g)+'</code></span>'
+             : (S.trials.length===0 ? '<span style="color:var(--muted)">Learning the order…</span>' : '<span class="no">✗ No answer in time</span>'));
+      if(i<N-1){ aStep(i+1); }
+      else {
+        el.textContent=S.list[N-1];
+        aTimer=setTimeout(function(){ drum.classList.remove("flash-ok","flash-no"); endAnticip(); }, Math.min(S.rate,2500));
+      }
+    }, S.rate);
+  }
+  function endAnticip(){
+    running=false; inTrial=false;
+    try{ $("a-in").blur(); }catch(e){}
+    $("a-drum").classList.remove("flash-ok","flash-no");
+    afterTrial(classify(cur.answers));
+  }
+
+  // ---------- serial recall ----------
+  function runSerial(){
+    if(running) return; running=true; inTrial=true; keepAwake();
+    var k=S.trials.length+1;
     show("stimulus");
-    $("syll").textContent=""; $("ready").hidden=false;
-    setTimeout(function(){$("ready").hidden=true; present(0);}, READY);
+    $("stim-tag").textContent="Trial "+k+" · watch";
+    $("stim-meta").textContent=(S.mode==="relearn"?"Relearning · ":"")+"Trial "+k+" of up to "+S.max;
+    var el=$("syll"); el.textContent="* * *";
+    aTimer=setTimeout(function(){ el.textContent=""; aTimer=setTimeout(function(){presentSerial(0);},250); }, S.rate);
   }
-  function present(i){
+  function presentSerial(i){
     var el=$("syll");
-    if(i>=list.length){ showRecall(); return; }
-    el.textContent=list[i];
-    setTimeout(function(){
-      el.textContent="";
-      setTimeout(function(){present(i+1);}, ISI);
-    }, ON);
+    if(i>=S.list.length){ el.textContent=""; aTimer=setTimeout(showRecall,400); return; }
+    el.textContent=S.list[i];
+    aTimer=setTimeout(function(){ el.textContent=""; aTimer=setTimeout(function(){presentSerial(i+1);},200); }, S.rate-200);
   }
-
-  // recall
   function showRecall(){
     running=false;
-    $("in-syll").value="";   // clear any leftover text from a previous run
+    var k=S.trials.length+1, L=S.list.length, box=$("slots");
+    $("recall-kicker").textContent="Trial "+k+" · recall";
+    box.innerHTML="";
+    for(var i=0;i<L;i++){
+      var row=document.createElement("label"); row.className="slot";
+      var n=document.createElement("span"); n.textContent=(i+1)+".";
+      var inp=document.createElement("input");
+      inp.type="text"; inp.id="slot-"+i; inp.setAttribute("autocapitalize","characters"); inp.setAttribute("autocomplete","off");
+      inp.setAttribute("autocorrect","off"); inp.setAttribute("spellcheck","false"); inp.maxLength=12; inp.setAttribute("enterkeyhint", i<L-1?"next":"done");
+      inp.setAttribute("aria-label","Position "+(i+1));
+      (function(idx){
+        inp.addEventListener("input",function(){ scriptWarn(this.value); if(norm(this.value).length>=3 && idx<L-1){ var nx=$("slot-"+(idx+1)); if(nx&&!nx.value) nx.focus(); } });
+        inp.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); if(idx<L-1) $("slot-"+(idx+1)).focus(); else $("submit-trial").focus(); } });
+      })(i);
+      row.appendChild(n); row.appendChild(inp); box.appendChild(row);
+    }
+    $("submit-trial").disabled=false;
     show("recall");
-    renderChips();
-    setTimeout(function(){try{$("in-syll").focus();}catch(e){}},200);
   }
-  function renderChips(){
-    var c=$("chips");
-    if(entered.length===0){c.innerHTML='<span class="emptyhint">Added syllables appear here. Any order is fine.</span>';}
-    else{
-      c.innerHTML="";
-      entered.forEach(function(s,idx){
-        var chip=document.createElement("span");chip.className="chip";
-        chip.appendChild(document.createTextNode(s));
-        var b=document.createElement("button");b.setAttribute("aria-label","Remove "+s);b.textContent="×";
-        b.onclick=function(){entered.splice(idx,1);renderChips();};
-        chip.appendChild(b);c.appendChild(chip);
-      });
-    }
-    $("finish").disabled=entered.length===0;
-    $("none").hidden=entered.length>0;
-  }
-  function addSyll(){
-    var v=($("in-syll").value||"").trim().toUpperCase().replace(/[^A-Z]/g,"");
-    if(v.length<2){ $("in-syll").value=""; return; }
-    if(entered.indexOf(v)===-1){ entered.push(v); }
-    $("in-syll").value=""; renderChips();
-    try{$("in-syll").focus();}catch(e){}
+  function submitSerial(){
+    $("submit-trial").disabled=true; inTrial=false;
+    var ans=[]; for(var i=0;i<S.list.length;i++) ans.push(norm($("slot-"+i).value));
+    afterTrial(classify(ans));
   }
 
-  // results
+  // ---------- shared trial logic ----------
+  function classify(ans){
+    var c=0,oe=0,intr=0,om=0,pos=[];
+    ans.forEach(function(a,i){
+      if(a===S.list[i]){c++;pos.push(true);}
+      else{ pos.push(false); if(!a) om++; else if(S.list.indexOf(a)!==-1) oe++; else intr++; }
+    });
+    return {answers:ans,pos:pos,correct:c,order:oe,intr:intr,omit:om};
+  }
+  function afterTrial(t){
+    S.trials.push(t);
+    var k=S.trials.length, L=S.list.length;
+    if(t.correct===L){ S.reached=k; finish(); return; }
+    if(k>=S.max){ finish(); return; }
+    var best=Math.max.apply(null,S.trials.map(function(x){return x.correct;}));
+    $("int-kicker").textContent="Trial "+k+" complete";
+    $("int-head").textContent = k>1 && t.correct>S.trials[k-2].correct ? "Getting better. The drum turns again" : "The drum turns again";
+    $("int-score").textContent=t.correct+" / "+L;
+    $("int-sub").textContent = S.method==="anticipation" ? "syllables predicted correctly" : "syllables in the correct position";
+    $("int-trail").innerHTML=S.trials.map(function(x,i){return '<span'+(x.correct===best?' class="best"':'')+'>T'+(i+1)+': '+x.correct+'</span>';}).join("");
+    $("int-note").textContent="Same list, same order. Trial "+(k+1)+" of up to "+S.max+". Goal: every syllable correct in one trial.";
+    $("go-next").textContent="Start trial "+(k+1);
+    show("interim");
+  }
+
+  // ---------- charts ----------
+  function ticks(max){ if(max<=4){var a=[];for(var i=0;i<=max;i++)a.push(i);return a;} return [0,Math.round(max/2),max]; }
+  function lineChart(vals,maxY,xTitle,yTitle){
+    var W=340,H=210,pl=38,pr=12,pt=16,pb=40,iw=W-pl-pr,ih=H-pt-pb,n=vals.length;
+    function x(i){return n===1?pl+iw/2:pl+i*iw/(n-1);} function y(v){return pt+ih-(v/maxY)*ih;}
+    var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(yTitle)+' by '+esc(xTitle)+'">';
+    ticks(maxY).forEach(function(tv){ s+='<line class="gd" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(tv)+'" y2="'+y(tv)+'"/><text x="'+(pl-6)+'" y="'+(y(tv)+3)+'" text-anchor="end">'+tv+'</text>'; });
+    s+='<line class="ax" x1="'+pl+'" x2="'+pl+'" y1="'+pt+'" y2="'+(pt+ih)+'"/><line class="ax" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+(pt+ih)+'" y2="'+(pt+ih)+'"/>';
+    if(n>1) s+='<path class="ln" d="'+vals.map(function(v,i){return (i?"L":"M")+x(i).toFixed(1)+" "+y(v).toFixed(1);}).join(" ")+'"/>';
+    var lblEvery=n>12?2:1;
+    vals.forEach(function(v,i){ s+='<circle class="pt" cx="'+x(i)+'" cy="'+y(v)+'" r="3.4"/>';
+      if(n<=12) s+='<text class="vl" x="'+x(i)+'" y="'+(y(v)-8)+'" text-anchor="middle">'+v+'</text>';
+      if(i%lblEvery===0||i===n-1) s+='<text x="'+x(i)+'" y="'+(pt+ih+14)+'" text-anchor="middle">'+(i+1)+'</text>'; });
+    s+='<text x="'+(pl+iw/2)+'" y="'+(H-6)+'" text-anchor="middle">'+esc(xTitle)+'</text>';
+    s+='<text transform="translate(11 '+(pt+ih/2)+') rotate(-90)" text-anchor="middle">'+esc(yTitle)+'</text></svg>';
+    return s;
+  }
+  function barChart(vals,maxY,xTitle,yTitle,hiIdx){
+    var W=340,H=210,pl=38,pr=12,pt=16,pb=40,iw=W-pl-pr,ih=H-pt-pb,n=vals.length,slot=iw/n,bw=Math.min(22,slot*0.66);
+    maxY=Math.max(1,maxY);
+    function y(v){return pt+ih-(v/maxY)*ih;}
+    var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(yTitle)+' by '+esc(xTitle)+'">';
+    ticks(maxY).forEach(function(tv){ s+='<line class="gd" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(tv)+'" y2="'+y(tv)+'"/><text x="'+(pl-6)+'" y="'+(y(tv)+3)+'" text-anchor="end">'+tv+'</text>'; });
+    s+='<line class="ax" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+(pt+ih)+'" y2="'+(pt+ih)+'"/>';
+    vals.forEach(function(v,i){ var cx=pl+slot*i+slot/2, h=(pt+ih)-y(v);
+      s+='<rect class="'+(hiIdx.indexOf(i)!==-1?"brh":"br")+'" x="'+(cx-bw/2)+'" y="'+y(v)+'" width="'+bw+'" height="'+Math.max(0,h)+'" rx="2"/>';
+      s+='<text class="vl" x="'+cx+'" y="'+(y(v)-5)+'" text-anchor="middle">'+v+'</text><text x="'+cx+'" y="'+(pt+ih+14)+'" text-anchor="middle">'+(i+1)+'</text>'; });
+    s+='<text x="'+(pl+iw/2)+'" y="'+(H-6)+'" text-anchor="middle">'+esc(xTitle)+'</text>';
+    s+='<text transform="translate(11 '+(pt+ih/2)+') rotate(-90)" text-anchor="middle">'+esc(yTitle)+'</text></svg>';
+    return s;
+  }
+
+  // ---------- analysis ----------
+  function analyse(){
+    var L=S.list.length, T=S.trials.length;
+    var correct=S.trials.map(function(t){return t.correct;});
+    var errPos=[], firstOk=[];
+    for(var i=0;i<L;i++){
+      errPos.push(S.trials.filter(function(t){return !t.pos[i];}).length);
+      var f=null; for(var j=0;j<T;j++){ if(S.trials[j].pos[i]){ f=j+1; break; } } firstOk.push(f);
+    }
+    var tot={order:0,intr:0,omit:0}; S.trials.forEach(function(t){tot.order+=t.order;tot.intr+=t.intr;tot.omit+=t.omit;});
+    var totalErr=tot.order+tot.intr+tot.omit, sumCorrect=correct.reduce(function(a,b){return a+b;},0);
+    var third=Math.max(1,Math.floor(L/3));
+    function avg(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:0;}
+    var early=avg(errPos.slice(0,third)), mid=avg(errPos.slice(third,L-third)), late=avg(errPos.slice(L-third));
+    var maxE=Math.max.apply(null,errPos), hi=[]; errPos.forEach(function(v,i){ if(v===maxE&&maxE>0) hi.push(i); });
+    var A={L:L,T:T,correct:correct,sumCorrect:sumCorrect,errPos:errPos,firstOk:firstOk,tot:tot,totalErr:totalErr,early:early,mid:mid,late:late,hi:hi};
+    if(S.mode==="relearn"&&S.original){
+      var OL=S.original.reached||S.original.max, RL=S.reached||S.max;
+      A.OL=OL; A.RL=RL; A.olCapped=!S.original.reached; A.rlCapped=!S.reached;
+      A.savings=Math.round(((OL-RL)/OL)*1000)/10;
+    }
+    return A;
+  }
+  function interpretation(A){
+    var p=[], anti=S.method==="anticipation", first=A.correct[0], last=A.correct[A.T-1];
+    if(A.T===1) p.push("Criterion was reached on the first trial, so no learning curve could form. A longer list or a faster drum rate would make the task sensitive enough to show learning.");
+    else p.push("<strong>Learning curve.</strong> Correct "+(anti?"anticipations":"responses")+" rose from <strong>"+first+"</strong> on trial 1 to <strong>"+last+"</strong> on trial "+A.T+". "+
+      (S.reached?"Criterion (one errorless trial) was reached on trial "+S.reached+". ":"Criterion was not reached within the "+S.max+"-trial limit. ")+
+      (anti?"Trial 1 is necessarily a study trial (nothing can be anticipated before it has been seen), so the curve starts near zero, rises steeply, and flattens as the last, hardest items are mastered.":"The typical curve rises steeply in early trials and then flattens as the remaining, hardest items are learned."));
+    if(A.T>1){
+      var learnedOrder=A.firstOk.map(function(f,i){return {i:i+1,f:f};}).filter(function(o){return o.f!==null;}).sort(function(a,b){return a.f-b.f;});
+      var lo=learnedOrder.length?" Positions "+learnedOrder.slice(0,Math.min(3,learnedOrder.length)).map(function(o){return o.i;}).join(", ")+" were the first to be "+(anti?"anticipated":"recalled")+" correctly.":"";
+      if(A.mid>A.early&&A.mid>A.late) p.push("<strong>Serial-position effect.</strong> Errors were concentrated in the <strong>middle</strong> of the list (mean "+A.mid.toFixed(1)+" errors per position) and were fewer at the beginning ("+A.early.toFixed(1)+") and end ("+A.late.toFixed(1)+"). This bow-shaped curve is the classic serial-position effect in serial learning: items at the start are learned first (primacy), items at the end next (recency), and the middle items take longest."+lo);
+      else p.push("<strong>Serial-position effect.</strong> Mean errors per position were "+A.early.toFixed(1)+" (beginning), "+A.mid.toFixed(1)+" (middle) and "+A.late.toFixed(1)+" (end). The classic expectation is a bow-shaped curve with most errors in the middle. Individual curves are noisy; the class average usually shows the bow more clearly."+lo);
+    }
+    if(A.totalErr>0){
+      p.push("<strong>Error analysis.</strong> Of "+A.totalErr+" errors, "+A.tot.omit+" were <em>omissions</em> ("+(anti?"no anticipation before the drum turned":"position left blank")+"), "+A.tot.order+" were <em>order errors</em> (a syllable from the list given at the wrong place) and "+A.tot.intr+" were <em>intrusions</em> (a syllable not in the list). "+
+        (anti?"In the anticipation method, omissions dominate early trials and are gradually replaced by correct responses; order errors, such as anticipating a syllable one place too early, show the items are known before their exact sequence is.":
+        (A.tot.order>A.tot.intr?"Order errors outnumbering intrusions suggests the items were learned before their positions.":"Intrusions often reflect partial recall: a syllable remembered by sound but with a wrong letter.")));
+    }
+    if(A.savings!==undefined){
+      p.push("<strong>Savings.</strong> Original learning took "+A.OL+(A.olCapped?"+":"")+" trials; relearning took "+A.RL+(A.rlCapped?"+":"")+". Savings = (OL − RL) / OL × 100 = <strong>"+A.savings+"%</strong>. "+
+        (A.savings>0?"A positive saving shows that some memory of the list survived even where it could not be consciously recalled, which is Ebbinghaus's central demonstration.":"No saving was found here. Check that the delay, effort and conditions were comparable to the original session."));
+    }
+    return p;
+  }
+
+  // ---------- report ----------
   function finish(){
-    var setList=list.map(function(s){return s;});
-    var correctPos=list.map(function(s){return entered.indexOf(s)!==-1;});
-    var correct=correctPos.filter(Boolean).length;
-    var intr=entered.filter(function(s){return list.indexOf(s)===-1;}).length;
+    running=false; releaseWake(); S.end=new Date();
+    var A=analyse();
+    if(S.mode==="original") save({method:S.method,list:S.list,rate:S.rate,max:S.max,reached:S.reached,trials:S.trials.length,correct:A.correct,date:fmtDate(S.end)});
+    renderReport(A);
+    show("report");
+  }
+  function renderReport(A){
+    var anti=S.method==="anticipation";
+    var title=(S.mode==="relearn"?"Relearning and Savings: ":"Serial Learning: ")+(anti?"the Anticipation Method":"Serial Recall");
+    var crit=S.reached?String(S.reached):("Not reached ("+S.max+")");
+    var html='';
+    html+='<div class="rhead"><p class="kicker">PSY8103P · Experimental report · Memory drum</p><h2>'+title+'</h2>'+
+      '<dl class="meta"><dt>Subject</dt><dd>'+esc(S.name||"(not given)")+'</dd><dt>Class / Roll</dt><dd>'+esc(S.roll||"(not given)")+'</dd>'+
+      '<dt>Date</dt><dd>'+fmtDate(S.start)+'</dd><dt>Condition</dt><dd>'+(S.mode==="relearn"?"Relearning (savings test)":"Original learning")+'</dd>'+
+      '<dt>Method</dt><dd>'+methodName(S.method)+'</dd></dl></div>';
 
-    $("sc-correct").textContent=correct;
+    html+='<div class="rsec"><h3><span class="n">1</span>Aim</h3><p class="small">To study the course of serial learning of nonsense syllables on a memory drum'+(anti?" using the anticipation method":"")+', and to examine the learning curve and the serial-position effect'+(S.mode==="relearn"?", and to measure savings on relearning.":".")+'</p></div>';
 
-    var pr=$("posrow"); pr.innerHTML="";
-    list.forEach(function(s,i){
-      var d=document.createElement("div");
-      d.className="pos"+(correctPos[i]?" hit":"");
-      d.textContent=(i+1);
-      pr.appendChild(d);
-    });
+    html+='<div class="rsec"><h3><span class="n">2</span>Method</h3><p class="small">'+
+      '<strong>Material:</strong> a list of '+A.L+' consonant–vowel–consonant nonsense syllables. '+
+      '<strong>Apparatus:</strong> a simulated memory drum showing one item at a time through a window, preceded by a ready signal (* * *). '+
+      '<strong>Rate:</strong> '+(S.rate/1000)+' s per item'+(anti?" (the anticipation interval)":"")+'. '+
+      (anti?'<strong>Procedure:</strong> anticipation method. The list was presented in the same fixed order on every trial. While each item (or the ready signal) was in the window, the subject typed the syllable expected to appear next; the next syllable\'s appearance served as feedback. '
+           :'<strong>Procedure:</strong> study–test method. The list was presented in the same fixed order on every trial; after each presentation the subject wrote the syllables in serial order. ')+
+      '<strong>Criterion:</strong> one errorless trial, maximum '+S.max+' trials. '+
+      '<strong>Scoring:</strong> a response was correct only if it was exactly the right syllable for that position'+(anti?", given before the drum turned":"")+'. '+
+      '<strong>Conditions:</strong> self-administered on a phone; the subject left the page <strong>'+(S.leaves||0)+'</strong> time'+((S.leaves||0)===1?"":"s")+' during trials.</p></div>';
 
-    // serial-position narrative
-    var firstHalf=correctPos.slice(0,4).filter(Boolean).length;
-    var lastHalf=correctPos.slice(-4).filter(Boolean).length;
-    var middle=correctPos.slice(4,-4).filter(Boolean).length;
-    var note;
-    if((firstHalf+lastHalf) > middle){
-      note="Notice the pattern: you remembered more from the <strong>start</strong> and the <strong>end</strong> of the list than the middle. That's the <strong>serial-position effect</strong> — primacy (early items got rehearsed into longer-term memory) and recency (the last items were still fresh in short-term memory).";
-    } else {
-      note="The <strong>serial-position effect</strong> predicts people recall the <strong>first</strong> and <strong>last</strong> items best — primacy and recency — with the middle the weakest. Compare your row to the class and see how often it holds.";
+    html+='<div class="rsec"><h3><span class="n">3</span>Results</h3><div class="tiles">'+
+      '<div class="tile hl"><div class="v">'+crit+'</div><div class="k">Trials to criterion</div></div>'+
+      '<div class="tile"><div class="v">'+A.totalErr+'</div><div class="k">Total errors</div></div>'+
+      '<div class="tile"><div class="v">'+A.sumCorrect+'</div><div class="k">Total correct '+(anti?"anticipations":"responses")+'</div></div>'+
+      '<div class="tile"><div class="v">'+A.correct[A.T-1]+' / '+A.L+'</div><div class="k">Correct on final trial</div></div>'+
+      (A.savings!==undefined?'<div class="tile hl" style="grid-column:1/-1"><div class="v">'+A.savings+'%</div><div class="k">Savings: OL '+A.OL+(A.olCapped?"+":"")+' trials → RL '+A.RL+(A.rlCapped?"+":"")+' trials</div></div>':'')+
+      '</div></div>';
+
+    html+='<div class="rsec"><h3><span class="n">3a</span>Learning curve</h3>'+lineChart(A.correct,A.L,"Trial","Correct "+(anti?"anticipations":"(position)"))+
+      '<p class="cap">Figure 1. Number of syllables '+(anti?"correctly anticipated":"recalled in the correct position")+' on each trial.</p></div>';
+
+    if(A.T>1){
+      html+='<div class="rsec"><h3><span class="n">3b</span>Serial-position curve</h3>'+barChart(A.errPos,A.T,"Serial position","Errors (all trials)",A.hi)+
+        '<p class="cap">Figure 2. Total errors at each serial position, summed over '+A.T+' trials. The hardest position'+(A.hi.length>1?"s are":" is")+' highlighted.</p></div>';
     }
-    $("sp-note").innerHTML=note;
 
-    var fl=$("full-list"); fl.innerHTML="";
-    list.forEach(function(s,i){
-      var d=document.createElement("div");
-      d.className="item "+(correctPos[i]?"hit":"miss");
-      d.textContent=s;
-      fl.appendChild(d);
-    });
-    $("intrusions").textContent = intr>0
-      ? (intr===1
-          ? "You also recalled 1 syllable that wasn't in the list — a false memory, which is interesting in itself."
-          : "You also recalled "+intr+" syllables that weren't in the list — false memories, which are interesting in themselves.")
-      : "No false memories — everything you typed was really shown.";
+    html+='<div class="rsec"><h3><span class="n">3c</span>Trial-by-trial data</h3><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Trial</th><th>Correct</th><th>Order</th><th>Intr.</th><th>Omit.</th></tr></thead><tbody>'+
+      S.trials.map(function(t,i){return '<tr'+(S.reached===i+1?' class="crit"':'')+'><td>'+(i+1)+(S.reached===i+1?' ✓':'')+'</td><td>'+t.correct+'</td><td>'+t.order+'</td><td>'+t.intr+'</td><td>'+t.omit+'</td></tr>';}).join("")+
+      '<tr><td><strong>Total</strong></td><td><strong>'+A.sumCorrect+'</strong></td><td><strong>'+A.tot.order+'</strong></td><td><strong>'+A.tot.intr+'</strong></td><td><strong>'+A.tot.omit+'</strong></td></tr>'+
+      '</tbody></table></div><p class="cap">Table 1. Order = a list syllable at the wrong place · Intr. = intrusion, a syllable not in the list · Omit. = '+(anti?"no answer before the drum turned":"left blank")+' · ✓ = criterion trial.</p></div>';
 
-    show("results");
+    html+='<div class="rsec"><h3><span class="n">3d</span>The list, and when each item was first learned</h3><div class="listing">'+
+      S.list.map(function(s,i){return '<div><span><i>'+(i+1)+'.</i> '+s+'</span><i>'+(A.firstOk[i]?"T"+A.firstOk[i]:"–")+'</i></div>';}).join("")+'</div>'+
+      '<p class="cap">Table 2. Each syllable in serial order, with the trial (T) on which it was first '+(anti?"anticipated":"recalled")+' correctly.</p></div>';
+
+    html+='<div class="rsec interp"><h3><span class="n">4</span>Discussion</h3>'+interpretation(A).map(function(x){return '<p>'+x+'</p>';}).join("")+'</div>';
+
+    html+='<div class="rsec"><h3><span class="n">5</span>Conclusion</h3><p class="small">'+
+      (S.reached?"The list of "+A.L+" nonsense syllables was learned to criterion in "+S.reached+" trial"+(S.reached>1?"s":"")+" by the "+(anti?"anticipation":"serial recall")+" method.":"The list was not learned to criterion within "+S.max+" trials; "+A.correct[A.T-1]+" of "+A.L+" items were correct on the final trial.")+
+      (A.savings!==undefined?" Relearning showed savings of "+A.savings+"%.":"")+'</p></div>';
+
+    $("report").innerHTML=html;
+    $("savings-hint").textContent = S.mode!=="original" ? "" :
+      (STORAGE_OK ? "Savings test: after a delay (for example the next class or the next day), open this same link on this same phone, in the same browser, and choose “Relearn that list now”."
+                  : "This browser is not saving data (private mode?), so the savings test won't be available later. Save or copy this report now.");
+  }
+  function reportText(){
+    var A=analyse(), L=A.L, lines=[];
+    lines.push((S.mode==="relearn"?"RELEARNING & SAVINGS":"SERIAL LEARNING")+" | MEMORY DRUM | "+methodName(S.method).toUpperCase()+" (PSY8103P)");
+    lines.push("Subject: "+(S.name||"-")+" | Class/Roll: "+(S.roll||"-")+" | Date: "+fmtDate(S.start));
+    lines.push("List: "+L+" CVC nonsense syllables | Rate: "+(S.rate/1000)+" s/item | Criterion: one errorless trial (max "+S.max+")");
+    lines.push("Left the page during trials: "+(S.leaves||0)+" time(s)");
+    lines.push("");
+    lines.push("Trials to criterion: "+(S.reached||("not reached ("+S.max+")")));
+    lines.push("Total correct: "+A.sumCorrect+" | Total errors: "+A.totalErr+" | Final trial: "+A.correct[A.T-1]+"/"+L);
+    if(A.savings!==undefined) lines.push("Savings: OL "+A.OL+" trials, RL "+A.RL+" trials -> "+A.savings+"%");
+    lines.push("");
+    lines.push("Trial | Correct | Order | Intrusion | Omission");
+    S.trials.forEach(function(t,i){lines.push("  "+(i+1)+"   |   "+t.correct+"    |   "+t.order+"   |     "+t.intr+"     |    "+t.omit);});
+    lines.push("");
+    lines.push("Errors by serial position: "+A.errPos.map(function(v,i){return (i+1)+":"+v;}).join("  "));
+    lines.push("List (first learned): "+S.list.map(function(s,i){return (i+1)+"."+s+"("+(A.firstOk[i]?"T"+A.firstOk[i]:"-")+")";}).join(" "));
+    return lines.join("\n");
+  }
+  function copyReport(){
+    var txt=reportText();
+    function fb(){ var b=$("copy-buf"); b.value=txt; b.select(); try{ b.setSelectionRange(0,txt.length); }catch(e){} try{ document.execCommand("copy"); toast("Copied"); }catch(e){ toast("Copy failed, use Print instead"); } }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){toast("Copied");},fb); } else fb();
   }
 
-  // wire up
-  $("go-instructions").onclick=function(){ name=($("in-name").value||"").trim(); show("instructions"); };
-  $("go-run").onclick=startRun;
-  $("add-syll").onclick=addSyll;
-  $("in-syll").addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); addSyll(); } });
-  $("finish").onclick=finish;
-  $("none").onclick=function(){ entered=[]; finish(); };
-  $("restart").onclick=function(){ show("welcome"); };
-
-  show("welcome");
+  // ---------- wire ----------
+  $("go-instructions").onclick=function(){ newSession("original"); };
+  $("go-relearn").onclick=function(){ newSession("relearn"); };
+  $("go-trial").onclick=runTrial;
+  $("go-next").onclick=runTrial;
+  $("submit-trial").onclick=submitSerial;
+  $("a-in").addEventListener("keydown",function(e){ if(e.key==="Enter") e.preventDefault(); });
+  $("a-in").addEventListener("input",function(){ scriptWarn(this.value); });
+  $("screen-anticip").addEventListener("click",function(e){ if(e.target.id!=="a-in"){ try{$("a-in").focus();}catch(err){} } });
+  $("btn-print").onclick=function(){ window.print(); };
+  $("btn-copy").onclick=copyReport;
+  $("btn-home").onclick=initWelcome;
+  initWelcome();
 })();
 </script>
 </body>
