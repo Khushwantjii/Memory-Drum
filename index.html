@@ -53,6 +53,8 @@
   .row>*{flex:1}
   .tag{display:inline-block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
   ol.steps{margin:0;padding-left:1.2rem;display:flex;flex-direction:column;gap:9px}
+  .toggle{display:flex;gap:12px;align-items:flex-start;font-size:.92rem;cursor:pointer}
+  .toggle input{width:22px;height:22px;margin:2px 0 0;flex:none;accent-color:var(--accent)}
   details.settings summary{cursor:pointer;font-weight:600;color:var(--accent);font-size:.92rem}
   details.settings[open] summary{margin-bottom:12px}
 
@@ -163,13 +165,17 @@
       <label class="field">Class / Roll no.
         <input id="in-roll" type="text" autocorrect="off" spellcheck="false" placeholder="e.g. MA Sem 1 · 23">
       </label>
+      <label class="toggle" for="set-sound">
+        <input type="checkbox" id="set-sound" checked>
+        <span><strong>Drum tick sound</strong><br><span class="muted small">A click on every turn, like the real drum. On iPhone, turn off silent mode to hear it. In class, use earphones or switch this off.</span></span>
+      </label>
       <details class="settings">
         <summary>Experimenter settings</summary>
         <div class="stack-sm">
           <label class="field">Method
             <select id="set-method">
-              <option value="anticipation" selected>Anticipation (classic memory drum)</option>
-              <option value="serial">Serial recall (study–test)</option>
+              <option value="anticipation" selected>Anticipation (classic)</option>
+              <option value="serial">Serial recall</option>
             </select>
           </label>
           <div class="grid2">
@@ -177,7 +183,7 @@
               <select id="set-len"><option value="8" selected>8</option><option value="10">10</option><option value="12">12</option></select>
             </label>
             <label class="field">Drum rate
-              <select id="set-rate"><option value="2000">2 s</option><option value="3000">3 s</option><option value="4000" selected>4 s</option><option value="5000">5 s</option></select>
+              <select id="set-rate"><option value="2000">2 s</option><option value="2500">2.5 s</option><option value="3000">3 s</option><option value="4000" selected>4 s</option><option value="5000">5 s</option><option value="6000">6 s</option><option value="8000">8 s</option><option value="10000">10 s</option></select>
             </label>
           </div>
           <label class="field">Maximum trials
@@ -277,16 +283,38 @@
   function releaseWake(){try{if(wake)wake.release();}catch(e){}wake=null;}
   document.addEventListener("visibilitychange",function(){
     if(document.visibilityState==="hidden"&&inTrial&&S){ S.leaves=(S.leaves||0)+1; }
-    if(document.visibilityState==="visible"&&running)keepAwake();
+    if(document.visibilityState==="visible"&&running){ keepAwake();
+      try{ if(actx&&actx.state!=="running"){ var r=actx.resume(); if(r&&r.catch) r.catch(function(){}); } }catch(e){} }
   });
   window.addEventListener("beforeunload",function(e){ if(S&&!S.end&&(inTrial||S.trials.length>0)){ e.preventDefault(); e.returnValue=""; } });
+  // ---- drum tick (Web Audio; must be unlocked inside a tap) ----
+  var actx=null;
+  function soundOn(){ return !!(S&&S.sound); }
+  function initAudio(){
+    if(!soundOn()) return;
+    try{
+      if(!actx){ var AC=window.AudioContext||window.webkitAudioContext; if(AC) actx=new AC(); }
+      if(actx&&actx.state!=="running"){ var r=actx.resume(); if(r&&r.catch) r.catch(function(){}); }   // covers iOS "interrupted" as well as "suspended"
+      if(actx){ var b=actx.createBuffer(1,1,22050), s=actx.createBufferSource(); s.buffer=b; s.connect(actx.destination); s.start(0); } // iOS unlock
+    }catch(e){}
+  }
+  function tick(hi){
+    if(!soundOn()||!actx) return;
+    try{
+      var t=actx.currentTime, o=actx.createOscillator(), g=actx.createGain();
+      o.type="square"; o.frequency.value=hi?1700:1050;
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.22,t+0.003); g.gain.exponentialRampToValueAtTime(0.0001,t+0.055);
+      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+0.07);
+    }catch(e){}
+  }
   function scriptWarn(v){ if(/[^\x00-\x7F]/.test(v||"")) toast("Switch to the English (ABC) keyboard"); }
   function methodName(m){return m==="serial"?"Serial recall (study–test)":"Anticipation method";}
 
   // ---------- welcome ----------
   function initWelcome(){
     clearTimeout(aTimer); running=false; inTrial=false;
-    try{var n=localStorage.getItem("md_name");if(n)$("in-name").value=n;var r=localStorage.getItem("md_roll");if(r)$("in-roll").value=r;}catch(e){}
+    try{var n=localStorage.getItem("md_name");if(n)$("in-name").value=n;var r=localStorage.getItem("md_roll");if(r)$("in-roll").value=r;
+        var sd=localStorage.getItem("md_sound");if(sd!==null)$("set-sound").checked=(sd==="1");}catch(e){}
     var o=load();
     if(o&&o.list){
       $("relearn-card").hidden=false;
@@ -302,7 +330,7 @@
   });
   function captureIds(){
     var nm=$("in-name").value.trim(), rl=$("in-roll").value.trim();
-    try{localStorage.setItem("md_name",nm);localStorage.setItem("md_roll",rl);}catch(e){}
+    try{localStorage.setItem("md_name",nm);localStorage.setItem("md_roll",rl);localStorage.setItem("md_sound",$("set-sound").checked?"1":"0");}catch(e){}
     return {name:nm,roll:rl};
   }
 
@@ -314,7 +342,7 @@
       S={mode:"original",method:$("set-method").value,list:shuffle(POOL.slice()).slice(0,parseInt($("set-len").value,10)),
          rate:parseInt($("set-rate").value,10),max:parseInt($("set-max").value,10),trials:[],reached:null,start:new Date(),name:ids.name,roll:ids.roll};
     }
-    S.leaves=0;
+    S.leaves=0; S.sound=$("set-sound").checked;
     var L=S.list.length, sec=S.rate/1000;
     $("ins-title").textContent=(S.mode==="relearn"?"Relearning (savings test)":"Original learning")+" · "+methodName(S.method);
     var steps;
@@ -336,7 +364,7 @@
     show("instructions");
   }
 
-  function runTrial(){ if(S.method==="anticipation") runAnticip(); else runSerial(); }
+  function runTrial(){ if(running) return; initAudio(); if(S.method==="anticipation") runAnticip(); else runSerial(); }
 
   // ---------- anticipation ----------
   function runAnticip(){
@@ -356,6 +384,7 @@
   function aStep(i){
     var N=S.list.length, el=$("a-syll");
     el.textContent = i===0 ? "* * *" : S.list[i-1];
+    tick(i===0);
     for(var d=0; d<N; d++){ var dt=$("dot-"+d); if(dt) dt.classList.toggle("now", d===i); }
     aTimer=setTimeout(function(){
       var g=norm($("a-in").value); $("a-in").value="";
@@ -369,7 +398,7 @@
              : (S.trials.length===0 ? '<span style="color:var(--muted)">Learning the order…</span>' : '<span class="no">✗ No answer in time</span>'));
       if(i<N-1){ aStep(i+1); }
       else {
-        el.textContent=S.list[N-1];
+        el.textContent=S.list[N-1]; tick(false);
         aTimer=setTimeout(function(){ drum.classList.remove("flash-ok","flash-no"); endAnticip(); }, Math.min(S.rate,2500));
       }
     }, S.rate);
@@ -388,13 +417,13 @@
     show("stimulus");
     $("stim-tag").textContent="Trial "+k+" · watch";
     $("stim-meta").textContent=(S.mode==="relearn"?"Relearning · ":"")+"Trial "+k+" of up to "+S.max;
-    var el=$("syll"); el.textContent="* * *";
+    var el=$("syll"); el.textContent="* * *"; tick(true);
     aTimer=setTimeout(function(){ el.textContent=""; aTimer=setTimeout(function(){presentSerial(0);},250); }, S.rate);
   }
   function presentSerial(i){
     var el=$("syll");
     if(i>=S.list.length){ el.textContent=""; aTimer=setTimeout(showRecall,400); return; }
-    el.textContent=S.list[i];
+    el.textContent=S.list[i]; tick(false);
     aTimer=setTimeout(function(){ el.textContent=""; aTimer=setTimeout(function(){presentSerial(i+1);},200); }, S.rate-200);
   }
   function showRecall(){
@@ -556,7 +585,7 @@
            :'<strong>Procedure:</strong> study–test method. The list was presented in the same fixed order on every trial; after each presentation the subject wrote the syllables in serial order. ')+
       '<strong>Criterion:</strong> one errorless trial, maximum '+S.max+' trials. '+
       '<strong>Scoring:</strong> a response was correct only if it was exactly the right syllable for that position'+(anti?", given before the drum turned":"")+'. '+
-      '<strong>Conditions:</strong> self-administered on a phone; the subject left the page <strong>'+(S.leaves||0)+'</strong> time'+((S.leaves||0)===1?"":"s")+' during trials.</p></div>';
+      '<strong>Conditions:</strong> self-administered on a phone; '+(S.sound?"an audible click marked each turn of the drum":"silent presentation (no drum click)")+'; the subject left the page <strong>'+(S.leaves||0)+'</strong> time'+((S.leaves||0)===1?"":"s")+' during trials.</p></div>';
 
     html+='<div class="rsec"><h3><span class="n">3</span>Results</h3><div class="tiles">'+
       '<div class="tile hl"><div class="v">'+crit+'</div><div class="k">Trials to criterion</div></div>'+
@@ -599,7 +628,7 @@
     lines.push((S.mode==="relearn"?"RELEARNING & SAVINGS":"SERIAL LEARNING")+" | MEMORY DRUM | "+methodName(S.method).toUpperCase()+" (PSY8103P)");
     lines.push("Subject: "+(S.name||"-")+" | Class/Roll: "+(S.roll||"-")+" | Date: "+fmtDate(S.start));
     lines.push("List: "+L+" CVC nonsense syllables | Rate: "+(S.rate/1000)+" s/item | Criterion: one errorless trial (max "+S.max+")");
-    lines.push("Left the page during trials: "+(S.leaves||0)+" time(s)");
+    lines.push("Drum click: "+(S.sound?"on":"off")+" | Left the page during trials: "+(S.leaves||0)+" time(s)");
     lines.push("");
     lines.push("Trials to criterion: "+(S.reached||("not reached ("+S.max+")")));
     lines.push("Total correct: "+A.sumCorrect+" | Total errors: "+A.totalErr+" | Final trial: "+A.correct[A.T-1]+"/"+L);
